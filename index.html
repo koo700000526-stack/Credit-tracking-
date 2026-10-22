@@ -69,6 +69,40 @@ input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:
 .fc i{display:block;width:100%;background:var(--accent);border-radius:4px 4px 0 0;min-height:2px}
 .fc div.now i{background:var(--warn)}
 .hb{margin:10px 0}.hb .t{display:flex;justify-content:space-between;gap:8px;font-size:.92rem}
+
+body{background:var(--bg)}
+main{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+.hero{color:#fff;background:linear-gradient(135deg,#0e8b95,#0a4a63);border-radius:24px;padding:22px;box-shadow:0 14px 32px -14px rgba(10,74,99,.8)}
+.hero .row2 div{background:rgba(255,255,255,.16)}
+.card{border-radius:18px;box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 20px -12px rgba(16,24,40,.18)}
+button{border-radius:12px;transition:transform .08s,opacity .15s}
+button:active{transform:scale(.97)}
+input,select,textarea{border-radius:12px}
+summary{cursor:pointer;font-weight:600;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"\25BE";float:right;color:var(--muted)}
+details[open] summary::after{content:"\25B4"}
+details[open] summary{margin-bottom:8px}
+.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100% - 24px));margin:0;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:0 12px 32px -8px rgba(16,24,40,.35);z-index:20}
+.tabs a{border:0;border-radius:999px;background:transparent;padding:11px}
+.tabs a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+.fab{position:fixed;right:max(16px,calc(50% - 344px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;padding:0;border-radius:50%;background:var(--accent);color:var(--accent-ink);border:0;font-size:2rem;line-height:1;box-shadow:0 12px 26px -6px rgba(14,124,134,.75);z-index:21}
+#scrim{position:fixed;inset:0;background:rgba(10,14,22,.55);z-index:35}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;max-width:720px;margin:0 auto;max-height:90vh;overflow:auto;border-radius:24px 24px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom,0px))}
+.sheet .sh{display:flex;justify-content:space-between;align-items:center;font-size:1.1rem}
+.item.stack{flex-direction:column;align-items:stretch;gap:8px}
+.item.stack .acts{flex-wrap:wrap}
+.item.stack .acts .p{flex:1 1 120px}
+:root{--pay:#1f8a4c;--edit:#2563eb;--undo:#b45309;--del:#c62828;--share:#0e7c86;--bk:#7c3aed;--imp:#0b7bb5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pay:#2e9e5f;--edit:#7aa7ff;--undo:#f0b35a;--del:#ff8a80;--share:#4cc3cd;--bk:#b79cff;--imp:#6cc4f0}}
+:root[data-theme="dark"]{--pay:#2e9e5f;--edit:#7aa7ff;--undo:#f0b35a;--del:#ff8a80;--share:#4cc3cd;--bk:#b79cff;--imp:#6cc4f0}
+button[data-a="pay"]{background:var(--pay);border-color:var(--pay);color:#fff;font-weight:600}
+button[data-a="undo"]{color:var(--undo);background:color-mix(in srgb,var(--undo) 15%,transparent);border-color:transparent}
+button[data-a="edit"]{color:var(--edit);background:color-mix(in srgb,var(--edit) 15%,transparent);border-color:transparent}
+button[data-a="del"],#clr{color:var(--del);background:color-mix(in srgb,var(--del) 15%,transparent);border-color:transparent}
+#shr{color:var(--share);background:color-mix(in srgb,var(--share) 16%,transparent);border-color:transparent;font-weight:600}
+#exp{color:var(--bk);background:color-mix(in srgb,var(--bk) 15%,transparent);border-color:transparent}
+#imp{color:var(--imp);background:color-mix(in srgb,var(--imp) 15%,transparent);border-color:transparent}
 </style>
 </head>
 <body>
@@ -85,11 +119,8 @@ input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:
 </section>
 
 <div id="vList">
-<h2>วงเงินสินเชื่อ</h2>
-<div class="card" id="limBox"></div>
-<div class="muted">คงเหลือ = วงเงิน − ยอดค้างจ่ายของรายการที่บันทึกไว้ในแอปนี้ (ประมาณการ อาจต่างจากในแอปผู้ให้บริการเล็กน้อย)</div>
-<h2>เพิ่มรายการผ่อน</h2>
-<form id="f" class="card">
+<details class="card" id="limD" style="margin-top:16px"><summary>วงเงินสินเชื่อ</summary><div id="limBox"></div><div class="muted" style="margin-top:8px">คงเหลือ = วงเงิน − ยอดค้างจ่ายของรายการที่บันทึกไว้ในแอปนี้ (ประมาณการ อาจต่างจากในแอปผู้ให้บริการเล็กน้อย)</div></details>
+<form id="f" class="card sheet" hidden><div class="full sh"><b id="fTitle">เพิ่มรายการผ่อน</b><button type="button" id="fX" aria-label="ปิด">✕</button></div>
   <label class="full">ประเภท<select name="type" id="typ"><option value="goods">ผ่อนสินค้า</option><option value="cash">เงินสด</option></select></label>
   <label class="full">ชื่อรายการ<input name="name" required maxlength="60" placeholder="เช่น ของที่สั่งเดือนตุลาคม, เงินสดจ่ายค่าเทอม"></label>
   <label class="full" id="goodsL">รายชื่อสินค้า (บรรทัดละ 1 ชิ้น)<textarea name="goods" rows="3" maxlength="600" placeholder="หูฟังบลูทูธ&#10;รองเท้าวิ่ง"></textarea></label>
@@ -98,9 +129,9 @@ input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:
   <label>จำนวนงวด<input name="months" type="number" min="1" max="60" step="1" required inputmode="numeric"></label>
   <label>จ่ายไปแล้ว (งวด)<input name="paid" type="number" min="0" step="1" value="0" inputmode="numeric"></label>
   <label class="full">วันที่ครบกำหนดของทุกเดือน<input name="due" type="number" min="1" max="31" step="1" value="1" required inputmode="numeric"></label>
-  <button class="p full" type="submit">บันทึกรายการ</button>
+  <div class="muted full">ใส่ยอดรวมหลังบวกดอกเบี้ยและค่าธรรมเนียมแล้ว ระบบจะหารเป็นยอดต่องวดให้</div><button class="p full" type="submit">บันทึกรายการ</button>
 </form>
-<div class="muted" style="margin-top:-2px">ใส่ยอดรวมหลังบวกดอกเบี้ยและค่าธรรมเนียมแล้ว ระบบจะหารเป็นยอดต่องวดให้</div>
+
 
 <h2>แยกตามผู้ให้บริการ</h2>
 <div id="list"></div>
@@ -115,6 +146,8 @@ input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:
 <p class="muted">ข้อมูลเก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ควรคัดลอกข้อมูลสำรองไว้เป็นระยะ</p>
 </div>
 <div id="vDash" hidden></div>
+<div id="scrim" hidden></div>
+<button id="fab" class="fab" aria-label="เพิ่มรายการ">＋</button>
 </main>
 <script>
 (function(){
@@ -162,14 +195,14 @@ function render(){
       if(tp(i)!==lastT){lastT=tp(i);html+='<div class="sub-h">'+(lastT==="cash"?"เงินสด":"ผ่อนสินค้า")+'</div>'}
       var left=i.months-i.paid,done=left<=0,paid=paidThisMonth(i);
       var st=done?'<span class="ok">ผ่อนครบแล้ว</span>':paid?'<span class="ok">จ่ายเดือนนี้แล้ว</span>':(i.due<today?'<span class="warn">เลยกำหนดวันที่ '+i.due+'</span>':'ครบกำหนดวันที่ '+i.due);
-      html+='<div class="item"><div class="l"><div class="nm">'+esc(i.name)+'</div>'+goodsHtml(i)+'<div class="muted">งวดละ '+baht(monthly(i))+' · จ่ายแล้ว '+Math.min(i.paid,i.months)+'/'+i.months+' งวด</div><div class="muted">'+st+'</div></div>'+
+      html+='<div class="item stack"><div class="l"><div class="nm">'+esc(i.name)+'</div>'+goodsHtml(i)+'<div class="muted">งวดละ '+baht(monthly(i))+' · จ่ายแล้ว '+Math.min(i.paid,i.months)+'/'+i.months+' งวด</div><div class="muted">'+st+'</div></div>'+
         '<div class="acts"><button class="p" data-a="pay" data-id="'+i.id+'"'+(done||paid?' disabled':'')+'>จ่ายงวดนี้</button>'+
         '<button data-a="undo" data-id="'+i.id+'" aria-label="ย้อนงวดล่าสุด"'+(i.paid<=0?' disabled':'')+'>ย้อน</button>'+
-        '<button data-a="del" data-id="'+i.id+'" aria-label="ลบรายการ"'+(armed===i.id?' style="background:var(--warn);border-color:var(--warn);color:var(--bg)"':'')+'>'+(armed===i.id?'ยืนยันลบ':'ลบ')+'</button></div></div>';
+        '<button data-a="edit" data-id="'+i.id+'">แก้ไข</button>'+'<button data-a="del" data-id="'+i.id+'" aria-label="ลบรายการ"'+(armed===i.id?' style="background:var(--warn);border-color:var(--warn);color:var(--bg)"':'')+'>'+(armed===i.id?'ยืนยันลบ':'ลบ')+'</button></div></div>';
     });
     html+='</div>';
   });
-  $("list").innerHTML=html||'<div class="empty">ยังไม่มีรายการ เพิ่มรายการผ่อนรายการแรกด้านบนได้เลย</div>';
+  $("list").innerHTML=html||'<div class="empty">ยังไม่มีรายการ กดปุ่ม ＋ มุมขวาล่างเพื่อเพิ่มรายการแรก</div>';
   updLimits();
   dash();
 }
@@ -177,15 +210,17 @@ $("prov").innerHTML=PROVIDERS.map(function(p){return '<option>'+esc(p)+'</option
 $("f").addEventListener("submit",function(e){
   e.preventDefault();
   var f=e.target,months=Math.max(1,parseInt(f.months.value,10)||1);
-  items.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:f.name.value.trim(),type:f.type.value,goods:f.type.value==="goods"?f.goods.value.split("\n").map(function(s){return s.trim()}).filter(Boolean).slice(0,30):[],provider:f.provider.value,
+  var rec={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:f.name.value.trim(),type:f.type.value,goods:f.type.value==="goods"?f.goods.value.split("\n").map(function(s){return s.trim()}).filter(Boolean).slice(0,30):[],provider:f.provider.value,
     total:parseFloat(f.total.value)||0,months:months,paid:Math.min(months,Math.max(0,parseInt(f.paid.value,10)||0)),
-    due:Math.min(31,Math.max(1,parseInt(f.due.value,10)||1))});
-  save();f.name.value="";f.goods.value="";f.total.value="";f.months.value="";f.paid.value="0";render();
+    due:Math.min(31,Math.max(1,parseInt(f.due.value,10)||1))};
+  if(editId){var ex=items.filter(function(x){return x.id===editId})[0];if(ex){rec.id=ex.id;rec.lastPaidYm=ex.lastPaidYm;items[items.indexOf(ex)]=rec}else items.push(rec)}else items.push(rec);
+  save();f.name.value="";f.goods.value="";f.total.value="";f.months.value="";f.paid.value="0";render();closeForm();
 });
 $("list").addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
   var it=items.filter(function(i){return i.id===b.dataset.id})[0];if(!it)return;
   if(b.dataset.a!=="del")armed=null;
+  if(b.dataset.a==="edit"){openForm(it);return}
   if(b.dataset.a==="pay"&&it.paid<it.months){it.paid++;it.lastPaidYm=ym}
   else if(b.dataset.a==="undo"&&it.paid>0){it.paid--;if(it.lastPaidYm===ym)it.lastPaidYm=null}
   else if(b.dataset.a==="del"){if(armed!==it.id){armed=it.id;render();return}armed=null;items=items.filter(function(i){return i!==it})}
@@ -207,6 +242,20 @@ $("shr").addEventListener("click",function(){
   if(navigator.share){navigator.share({title:"บัญชีผ่อนชำระ",url:u}).catch(function(e){if(!e||e.name!=="AbortError")fb()})}
   else{try{navigator.clipboard.writeText(u).then(ok,fb)}catch(x){fb()}}
 });
+var editId=null;
+function openForm(it){
+  var f=$("f");editId=it?it.id:null;
+  $("fTitle").textContent=it?"แก้ไขรายการ":"เพิ่มรายการผ่อน";
+  f.type.value=it?tp(it):"goods";f.name.value=it?it.name:"";f.goods.value=it&&it.goods?it.goods.join("\n"):"";
+  f.provider.value=it?it.provider:PROVIDERS[0];f.total.value=it?it.total:"";f.months.value=it?it.months:"";f.paid.value=it?it.paid:"0";f.due.value=it?it.due:"1";
+  $("goodsL").hidden=f.type.value!=="goods";
+  f.hidden=false;$("scrim").hidden=false;document.body.style.overflow="hidden";
+}
+function closeForm(){editId=null;$("f").hidden=true;$("scrim").hidden=true;document.body.style.overflow=""}
+$("fab").addEventListener("click",function(){openForm(null)});
+$("fX").addEventListener("click",closeForm);
+$("scrim").addEventListener("click",closeForm);
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeForm()});
 var clrT;
 $("clr").addEventListener("click",function(){
   var b=this;
@@ -258,7 +307,7 @@ function dash(){
 }
 function route(){
   var d=view==="dashboard";
-  $("vList").hidden=d;$("vDash").hidden=!d;
+  $("vList").hidden=d;$("vDash").hidden=!d;$("fab").hidden=d;
   $("tabL").setAttribute("aria-current",d?"false":"page");
   $("tabD").setAttribute("aria-current",d?"page":"false");
 }
@@ -279,4 +328,3 @@ load();render();route();
 </script>
 </body>
 </html>
-
